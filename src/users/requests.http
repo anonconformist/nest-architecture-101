@@ -8,7 +8,7 @@ content-type: application/json
 }
 
 ### get a user
-GET http://localhost:3000/auth/21
+GET http://localhost:3000/auth/2
 
 ### get specific email users
 GET http://localhost:3000/auth/?email=tahir@gmail.com
