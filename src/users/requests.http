@@ -1,5 +1,13 @@
 ### create a user
-# POST http://localhost:3000/auth/signup
+POST http://localhost:3000/auth/signup
+content-type: application/json
+
+{
+    "email": "testsingup@gmail.com",
+    "password": "12345"
+}
+
+### signin a user
 POST http://localhost:3000/auth/signin
 content-type: application/json
 
@@ -7,6 +15,12 @@ content-type: application/json
     "email": "testsingup@gmail.com",
     "password": "12345"
 }
+
+### which user is signed in?
+GET http://localhost:3000/auth/whoAmI
+
+### sign out the user
+POST http://localhost:3000/auth/signOut
 
 ### get a user
 GET http://localhost:3000/auth/2
@@ -24,3 +38,9 @@ content-type: application/json
 {
     "email": "rasheed@gmail.com"
 }
+
+### set a color
+GET http://localhost:3000/auth/colors/red
+
+### get a color
+GET http://localhost:3000/auth/colors

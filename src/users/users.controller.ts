@@ -1,30 +1,66 @@
 
-import { Body, Controller, Post, Get, Patch, Delete, Param, Query, NotFoundException, UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
+import { Body, Controller, Post, Get, Patch, Delete, Param, Query, NotFoundException, UseInterceptors, Session, UseGuards } from '@nestjs/common';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user-dto';
 import { UsersService } from './users.service';
 import { Serialize } from 'src/interceptors/serialize.interceptor'; 
 import { UserDto } from './dtos/user-dtos';
 import { AuthService } from './auth.service';
+import { CurrentUser } from './decorators/current-user.decorator';
+import { CurrentUserInterceptor } from './interceptors/create-user.interceptors';
+import { User } from './users.entity';
+import { AuthGuard } from 'src/guards/auth.guard';
 
 @Controller('auth')
 @Serialize(UserDto)
+@UseInterceptors(CurrentUserInterceptor)
+
 export class UsersController {
     constructor(private userService: UsersService, private authService: AuthService){
 
     }
 
-    @Post('/signup')
-    signup(@Body() body: CreateUserDto){
-        // console.log(body)
-        // this.userService.create(body.email, body.password);
-        return this.authService.signUp(body.email, body.password);
+    /// ----------->>>>>>>>>>>>>>>>>>>>>    sessions    <<<<<<<<<<<<<<<--------------------
+    // @Get('/colors/:color')
+    // setColor(@Param('color') color: string, @Session() session: any){
+    //     session.color = color;
+    // }
+
+    // @Get('/colors')
+    // getColor(@Session() session: any){
+    //     return session.color;`1`
+    // }
+
+    // @Get('/whoAmI')
+    // whoAmI(@Session() session: any) {
+    //     return this.userService.findOne(session.userId);
+    // }
+
+    @Get('/whoAmI')
+    @UseGuards(AuthGuard)
+    whoAmI(@CurrentUser() user: User) {
+        return user;
     }
 
+    @Post('/signOut')
+    signOut(@Session() session: any){
+        session.userId = null;
+    }
+
+    @Post('/signup')
+    async signup(@Body() body: CreateUserDto, @Session() session: any){
+        // console.log(body)
+        // this.userService.create(body.email, body.password);
+        const user = await this.authService.signUp(body.email, body.password);
+        session.userId = user.id;
+        return user;
+    }
 
     @Post('/signin')
-    signin(@Body() body: CreateUserDto){
-        return this.authService.signIn(body.email, body.password);
+    async signin(@Body() body: CreateUserDto,  @Session() session: any){
+        const user = await this.authService.signIn(body.email, body.password);
+        session.userId = user.id;
+        return user;
     }
 
     // @UseInterceptors(new SerializeInterceptor (UserDto) )
